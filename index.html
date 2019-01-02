@@ -162,50 +162,56 @@
               'offline': 1,
               'recomm': 2
             }
-          
+
             function main() {
-              // Don't do anything if there is no "utm_content"
-              var adGroup = getQuery('utm_content')
-              if(!adGroup) return
-          
-              // Find elements to rearrange
               var banners = document.querySelectorAll('#banner-trio > div')
-          
-              // If the user visited before retain the previous arrangement
+              var firstBannerIndex = adGroupMap[getQuery('utm_content')]
               var savedOrder = getCookie(cookieKey)
+
               if(savedOrder) {
-                var order = JSON.parse(savedOrder)
-                rearrange(banners, order)
-                return
+                // If there is saved arrangement...
+                if(JSON.parse(savedOrder)[0] === firstBannerIndex) {
+                  // If the first banner the same with "utm_content," retain previous
+                  // arrangement
+                  rearrange(banners, JSON.parse(savedOrder))
+                } else {
+                  // If the first banner doesn't match, shuffle again
+                  shuffleBanners(banners, firstBannerIndex)
+                }
+              } else {
+                // If there isn't saved arrangement...
+                if(firstBannerIndex === undefined) {
+                  // If there's non "utm_contennt," do nothing
+                } else {
+                  // Fix the first slot, and shuffle the rest
+                  shuffleBanners(banners, firstBannerIndex)
+                }
               }
-          
-              // If it's the first time...
-          
-              // 1. Find a banner to place to the first slot
-              var firstBannerIndex = adGroupMap[adGroup]
-          
-              // 2. Shuffle rest banners' indices
+            }
+
+            function shuffleBanners(banners, firstBannerIndex) {
+              // 1. Shuffle rest banners' indices
               var order = []
               for(var i = 0; i < banners.length; i++) {
                 if(i === firstBannerIndex) continue
                 order.push(i)
               }
               shuffle(order)
-          
-              // 3. Prepend the first banner's index to the shuffled indices
+
+              // 2. Prepend the first banner's index to the shuffled indices
               order.splice(0, 0, firstBannerIndex)
-          
-              // 4. Perform rearrange
+
+              // 3. Perform rearrange
               rearrange(banners, order)
-          
-              // 5. Save the order
+
+              // 4. Save the order
               setCookie(cookieKey, JSON.stringify(order))
             }
-          
+
             function setCookie(key, value) {
               document.cookie = key + '=' + value + '; expires=' + new Date(2020, 0, 1).toUTCString() + '; path=/'
             }
-          
+
             function getCookie(key) {
               var name = key + "="
               var pairs = decodeURIComponent(document.cookie).split(';')
@@ -215,11 +221,11 @@
               }
               return null
             }
-          
+
             function getQuery(key) {
               var qs = location.href.split('?')[1]
               if(!qs) return null
-          
+
               var pairs = qs.split('&')
               for(var i = 0; i < pairs.length; i++) {
                 var tokens = pairs[i].split('=')
@@ -227,13 +233,13 @@
               }
               return null
             }
-          
+
             function rearrange(sibs, order) {
               for(var i = 0; i < order.length; i++) {
                 sibs[order[i]].parentNode.appendChild(sibs[order[i]])
               }
             }
-          
+
             function shuffle(a) {
               for (var i = a.length - 1; i > 0; i--) {
                   var j = Math.random() * (i + 1)|0
@@ -243,7 +249,7 @@
               }
               return a
             }
-          
+
             main()
           })()
         </script>
