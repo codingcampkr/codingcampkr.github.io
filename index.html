@@ -162,33 +162,37 @@
               'offline': 1,
               'recomm': 2
             }
-
+          
             function main() {
               var banners = document.querySelectorAll('#banner-trio > div')
-              var firstBannerIndex = adGroupMap[getQuery('utm_content') || getQuery('content')]
+              var content = getQuery('utm_content') || getQuery('content')
+              var firstBannerIndex = adGroupMap[content]
               var savedOrder = getCookie(cookieKey)
-
+          
               if(savedOrder) {
                 // If there is saved arrangement...
                 if(JSON.parse(savedOrder)[0] === firstBannerIndex) {
                   // If the first banner the same with "utm_content," retain previous
                   // arrangement
                   rearrange(banners, JSON.parse(savedOrder))
+                } else if(!content) {
+                  // If there is no "utm_content," retain previous arrangement
+                  rearrange(banners, JSON.parse(savedOrder))
                 } else {
-                  // If the first banner doesn't match, shuffle again
+                  // If the first banner doesn't match with "utm_content," shuffle again
                   shuffleBanners(banners, firstBannerIndex)
                 }
               } else {
                 // If there isn't saved arrangement...
-                if(firstBannerIndex === undefined) {
-                  // If there's non "utm_contennt," do nothing
+                if(!content) {
+                  // If there's non "utm_content," do nothing
                 } else {
                   // Fix the first slot, and shuffle the rest
                   shuffleBanners(banners, firstBannerIndex)
                 }
               }
             }
-
+          
             function shuffleBanners(banners, firstBannerIndex) {
               // 1. Shuffle rest banners' indices
               var order = []
@@ -197,21 +201,21 @@
                 order.push(i)
               }
               shuffle(order)
-
+          
               // 2. Prepend the first banner's index to the shuffled indices
               order.splice(0, 0, firstBannerIndex)
-
+          
               // 3. Perform rearrange
               rearrange(banners, order)
-
+          
               // 4. Save the order
               setCookie(cookieKey, JSON.stringify(order))
             }
-
+          
             function setCookie(key, value) {
               document.cookie = key + '=' + value + '; expires=' + new Date(2020, 0, 1).toUTCString() + '; path=/'
             }
-
+          
             function getCookie(key) {
               var name = key + "="
               var pairs = decodeURIComponent(document.cookie).split(';')
@@ -221,11 +225,11 @@
               }
               return null
             }
-
+          
             function getQuery(key) {
               var qs = location.href.split('?')[1]
               if(!qs) return null
-
+          
               var pairs = qs.split('&')
               for(var i = 0; i < pairs.length; i++) {
                 var tokens = pairs[i].split('=')
@@ -233,13 +237,13 @@
               }
               return null
             }
-
+          
             function rearrange(sibs, order) {
               for(var i = 0; i < order.length; i++) {
                 sibs[order[i]].parentNode.appendChild(sibs[order[i]])
               }
             }
-
+          
             function shuffle(a) {
               for (var i = a.length - 1; i > 0; i--) {
                   var j = Math.random() * (i + 1)|0
@@ -249,7 +253,7 @@
               }
               return a
             }
-
+          
             main()
           })()
         </script>
