@@ -165,7 +165,7 @@
 
             function main() {
               var banners = document.querySelectorAll('#banner-trio > div')
-              var firstBannerIndex = adGroupMap[getQuery('utm_content') || getQuery('content')]
+              var firstBannerIndex = adGroupMap[getQuery('utm_content')]
               var savedOrder = getCookie(cookieKey)
 
               if(savedOrder) {
